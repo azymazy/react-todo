@@ -1,4 +1,4 @@
-import { memo, useEffect, useCallback, useRef, useState } from 'react'
+import { memo, useEffect, useCallback, useRef, useState, ChangeEvent } from 'react'
 import { useImmer } from 'use-immer'
 import { nanoid } from 'nanoid'
 import './App.css'
@@ -11,7 +11,21 @@ const useRenderCounter = () => {
   return counter.current
 }
 
-const initialTodoItems = {
+type ItemId = string
+
+type TodoItem = {
+  id: ItemId,
+  isDone: boolean,
+  description: string
+}
+
+type TodoItems = {
+  data: Record<ItemId, TodoItem>,
+  order: ItemId[]
+}
+
+// Mock
+const initialTodoItems: TodoItems = {
   data: {
     '123': {
       id: '123',
@@ -22,8 +36,7 @@ const initialTodoItems = {
       id: '432',
       isDone: false,
       description: 'Sell some milk'
-    },
-
+    }
   },
   order: [
     '123',
@@ -31,7 +44,12 @@ const initialTodoItems = {
   ]
 }
 
-const TodoItem = memo((props) => {
+type TodoItemProps = {
+  item: TodoItem,
+  toggleItem: (id: ItemId) => void
+}
+
+const TodoItem = memo((props: TodoItemProps) => {
   const { item, toggleItem } = props
   const { id, isDone, description } = item
 
@@ -54,10 +72,10 @@ const TodoItem = memo((props) => {
 })
 
 function App() {
-  const [{ data, order }, setTodoItems] = useImmer(initialTodoItems)
+  const [{ data, order }, setTodoItems] = useImmer<TodoItems>(initialTodoItems)
   const [newItemDescription, setNewItemDescription] = useState('')
 
-  const handleNewItemDescription = (e) => {
+  const handleNewItemDescription = (e: ChangeEvent<HTMLInputElement>) => {
     setNewItemDescription(e.target.value)
   }
 
@@ -81,12 +99,12 @@ function App() {
   }
 
   const toggleItem = useCallback(
-    (itemId: string) => {
+    (itemId: ItemId) => {
       setTodoItems((todoItemsDraft) => {
         todoItemsDraft.data[itemId].isDone = !todoItemsDraft.data[itemId].isDone
       })
     },
-    []
+    [setTodoItems]
   )
 
   return (
