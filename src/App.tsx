@@ -1,7 +1,15 @@
-import { memo, useCallback, useState } from 'react'
+import { memo, useEffect, useCallback, useRef, useState } from 'react'
 import { useImmer } from 'use-immer'
 import { nanoid } from 'nanoid'
 import './App.css'
+
+// Utility hook
+const useRenderCounter = () => {
+  const counter = useRef(0)
+  useEffect(() => { counter.current++ })
+
+  return counter.current
+}
 
 const initialTodoItems = {
   data: {
@@ -26,8 +34,12 @@ const initialTodoItems = {
 const TodoItem = memo((props) => {
   const { item, toggleItem } = props
   const { id, isDone, description } = item
+
+  const counter = useRenderCounter()
+
   return (
     <li key={id}>
+      [{counter}]
       <label htmlFor={id}>
         <input
           type="checkbox"
