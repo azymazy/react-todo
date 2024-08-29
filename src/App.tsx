@@ -70,15 +70,8 @@ function App() {
 
   const toggleItem = useCallback(
     (itemId: string) => {
-      setTodoItems((items) => {
-        return items.map((item) => {
-          if (item.id === itemId) return {
-            ...item,
-            isDone: !item.isDone
-          }
-
-          return item
-        })
+      setTodoItems((todoItemsDraft) => {
+        todoItemsDraft.data[itemId].isDone = !todoItemsDraft.data[itemId].isDone
       })
     },
     []
