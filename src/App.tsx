@@ -2,16 +2,29 @@ import { useState } from 'react'
 import { nanoid } from 'nanoid'
 import './App.css'
 
-const initialTodoItems = [
-  {
-    id: '123',
-    isDone: false,
-    description: 'Buy some milk'
-  }
-]
+const initialTodoItems = {
+  data: {
+    '123': {
+      id: '123',
+      isDone: false,
+      description: 'Buy some milk'
+    },
+    '432': {
+      id: '432',
+      isDone: false,
+      description: 'Sell some milk'
+    },
+
+  },
+  order: [
+    '123',
+    '432'
+  ]
+}
+
 
 function App() {
-  const [todoItems, setTodoItems] = useState(initialTodoItems)
+  const [{ data, order }, setTodoItems] = useState(initialTodoItems)
   const [newItemDescription, setNewItemDescription] = useState('')
 
   const handleNewItemDescription = (e) => {
@@ -58,8 +71,9 @@ function App() {
 
       <div>
         <ul>
-          {todoItems.map(({ id, isDone, description }) =>
-            <li key={id}>
+          {order.map((itemId) => {
+            const { id, isDone, description } = data[itemId]
+            return <li key={id}>
               <label htmlFor="id">
                 <input
                   type="checkbox"
@@ -70,6 +84,7 @@ function App() {
                 {description}
               </label>
             </li>
+          }
           )}
         </ul>
       </div>
