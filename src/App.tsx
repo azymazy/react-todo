@@ -1,33 +1,60 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { nanoid } from 'nanoid'
 import './App.css'
 
+const initialTodoItems = [
+  {
+    id: '123',
+    isDone: false,
+    description: 'Buy some milk'
+  }
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [todoItems, setTodoItems] = useState(initialTodoItems)
+  const [newItemDescription, setNewItemDescription] = useState('')
+
+  const handleNewItemDescription = (e) => {
+    setNewItemDescription(e.target.value)
+  }
+
+  const addItem = () => {
+    setTodoItems((items) => {
+      const newItem = {
+        id: nanoid(),
+        description: newItemDescription,
+        isDone: false,
+      }
+      return [...items, newItem]
+    })
+    setNewItemDescription('')
+  }
 
   return (
     <>
+      <h1>TODO</h1>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <input
+          type="text"
+          placeholder='Type here...'
+          value={newItemDescription}
+          onChange={handleNewItemDescription}
+        />
+        <button onClick={addItem}>Add</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+      <div>
+        <ul>
+          {todoItems.map(({ id, isDone, description }) =>
+            <li key={id}>
+              <label htmlFor="id">
+                <input type="checkbox" checked={isDone} id={id} />
+                {description}
+              </label>
+            </li>
+          )}
+        </ul>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
