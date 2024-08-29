@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState, memo } from 'react'
 import { nanoid } from 'nanoid'
 import './App.css'
 
@@ -22,6 +22,23 @@ const initialTodoItems = {
   ]
 }
 
+const TodoItem = memo((props) => {
+  const {item, toggleItem } = props
+  const { id, isDone, description } = item
+  return (
+    <li key={id}>
+      <label htmlFor={id}>
+        <input
+          type="checkbox"
+          checked={isDone}
+          id={id}
+          onChange={() => toggleItem(id)}
+        />
+        {description}
+      </label>
+    </li>
+  )
+})
 
 function App() {
   const [{ data, order }, setTodoItems] = useState(initialTodoItems)
@@ -32,29 +49,41 @@ function App() {
   }
 
   const addItem = () => {
-    setTodoItems((items) => {
+    if (!newItemDescription) return
+
+    setTodoItems((todoItems) => {
+      const newTodoItems = {...todoItems}
+      const newId = nanoid()
+
       const newItem = {
-        id: nanoid(),
+        id: newId,
         description: newItemDescription,
         isDone: false,
       }
-      return [...items, newItem]
+
+      newTodoItems.order = [...newTodoItems.order, newId]
+      newTodoItems.data = {...newTodoItems.data, [newId]: newItem}
+
+      return newTodoItems
     })
     setNewItemDescription('')
   }
 
-  const toggleItem = (itemId: string) => {
-    setTodoItems((items) => {
-      return items.map((item) => {
-        if (item.id === itemId) return {
-          ...item,
-          isDone: !item.isDone
-        }
+  const toggleItem = useCallback(
+    (itemId: string) => {
+      setTodoItems((items) => {
+        return items.map((item) => {
+          if (item.id === itemId) return {
+            ...item,
+            isDone: !item.isDone
+          }
 
-        return item
+          return item
+        })
       })
-    })
-  }
+    },
+    []
+  )
 
   return (
     <>
@@ -71,21 +100,11 @@ function App() {
 
       <div>
         <ul>
-          {order.map((itemId) => {
-            const { id, isDone, description } = data[itemId]
-            return <li key={id}>
-              <label htmlFor="id">
-                <input
-                  type="checkbox"
-                  checked={isDone}
-                  id={id}
-                  onClick={() => toggleItem(id)}
-                />
-                {description}
-              </label>
-            </li>
-          }
-          )}
+          {order.map((itemId) => <TodoItem
+            item={data[itemId]}
+            toggleItem={toggleItem}
+            key={itemId}
+          />)}
         </ul>
       </div>
     </>
