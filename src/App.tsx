@@ -30,6 +30,19 @@ function App() {
     setNewItemDescription('')
   }
 
+  const toggleItem = (itemId: string) => {
+    setTodoItems((items) => {
+      return items.map((item) => {
+        if (item.id === itemId) return {
+          ...item,
+          isDone: !item.isDone
+        }
+
+        return item
+      })
+    })
+  }
+
   return (
     <>
       <h1>TODO</h1>
@@ -48,7 +61,12 @@ function App() {
           {todoItems.map(({ id, isDone, description }) =>
             <li key={id}>
               <label htmlFor="id">
-                <input type="checkbox" checked={isDone} id={id} />
+                <input
+                  type="checkbox"
+                  checked={isDone}
+                  id={id}
+                  onClick={() => toggleItem(id)}
+                />
                 {description}
               </label>
             </li>
