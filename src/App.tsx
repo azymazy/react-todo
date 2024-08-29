@@ -1,4 +1,5 @@
-import { useCallback, useState, memo } from 'react'
+import { memo, useCallback, useState } from 'react'
+import { useImmer } from 'use-immer'
 import { nanoid } from 'nanoid'
 import './App.css'
 
@@ -23,7 +24,7 @@ const initialTodoItems = {
 }
 
 const TodoItem = memo((props) => {
-  const {item, toggleItem } = props
+  const { item, toggleItem } = props
   const { id, isDone, description } = item
   return (
     <li key={id}>
@@ -41,7 +42,7 @@ const TodoItem = memo((props) => {
 })
 
 function App() {
-  const [{ data, order }, setTodoItems] = useState(initialTodoItems)
+  const [{ data, order }, setTodoItems] = useImmer(initialTodoItems)
   const [newItemDescription, setNewItemDescription] = useState('')
 
   const handleNewItemDescription = (e) => {
@@ -51,8 +52,7 @@ function App() {
   const addItem = () => {
     if (!newItemDescription) return
 
-    setTodoItems((todoItems) => {
-      const newTodoItems = {...todoItems}
+    setTodoItems((todoItemsDraft) => {
       const newId = nanoid()
 
       const newItem = {
@@ -61,11 +61,10 @@ function App() {
         isDone: false,
       }
 
-      newTodoItems.order = [...newTodoItems.order, newId]
-      newTodoItems.data = {...newTodoItems.data, [newId]: newItem}
-
-      return newTodoItems
+      todoItemsDraft.order.push(newId)
+      todoItemsDraft.data[newId] = newItem
     })
+
     setNewItemDescription('')
   }
 
